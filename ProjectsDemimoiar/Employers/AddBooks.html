@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>الصفحة الرئيسية</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  </head>
+  <body class="bg-[#FFFBDF] text-[#30382F]">
+    <div class="min-h-screen flex flex-col">
+      <!-- Navbar -->
+      <nav class="bg-[#4F46E5] text-white p-4">
+        <div class="container mx-auto flex justify-between items-center">
+          <h1 class="text-xl font-bold">مكتبة كتابي</h1>
+          <ul class="flex space-x-4 space-x-reverse">
+            <li><a href="login.html" class="hover:underline">تسجيل الدخول</a></li>
+            <li><a href="register.html" class="hover:underline">إنشاء حساب</a></li>
+            <li><a href="books.html" class="hover:underline">قائمة الكتب</a></li>
+            <li><a href="categories.html" class="hover:underline">التصنيفات</a></li>
+            <li><a href="dashboard.html" class="hover:underline">لوحة التحكم</a></li>
+          </ul>
+        </div>
+      </nav>
+
+      <!-- Content -->
+      <main class="flex-grow container mx-auto p-6">
+        <section class="text-center mb-12">
+          <h2 class="text-4xl font-extrabold mb-4">مرحباً بك في مكتبة كتابي</h2>
+          <p class="text-lg">منصة سهلة لإدارة الكتب واستعارتها داخل مؤسستك.</p>
+        </section>
+
+        <!-- قسم الكتب المضافة -->
+        <section class="mb-12">
+          <h3 class="text-2xl font-bold mb-4 text-center">آخر الكتب المضافة</h3>
+          <div id="booksContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <!-- الكتب ستُعرض هنا -->
+          </div>
+        </section>
+      </main>
+
+      <!-- Footer -->
+      <footer class="bg-[#4F46E5] text-white text-center p-4">
+        <p>© 2025 مكتبة كتابي. جميع الحقوق محفوظة.</p>
+      </footer>
+    </div>
+
+    <!-- سكربت عرض وحذف وتعديل الكتب -->
+    <script>
+      const booksContainer = document.getElementById('booksContainer');
+      let books = JSON.parse(localStorage.getItem('books')) || [];
+
+      function renderBooks() {
+        booksContainer.innerHTML = '';
+
+        if (books.length === 0) {
+          booksContainer.innerHTML = '<p class="text-center col-span-full text-gray-600">لا توجد كتب مضافة حاليًا.</p>';
+          return;
+        }
+
+        books.forEach((book, index) => {
+          const card = document.createElement('div');
+          card.className = 'bg-white rounded-xl shadow p-4 flex flex-col items-center text-center';
+
+          card.innerHTML = `
+            <img src="${book.image || 'https://via.placeholder.com/200x250?text=غلاف+الكتاب'}"
+                 alt="${book.title}"
+                 class="w-40 h-56 object-cover mb-4 rounded-md shadow">
+            <h4 class="text-lg font-bold mb-2">${book.title}</h4>
+            <p class="text-sm mb-1">الكاتب: ${book.author}</p>
+            <p class="text-sm mb-2">الحالة:
+              <span class="${book.status === 'متوفر' ? 'text-green-600' : 'text-red-600'}">
+                ${book.status}
+              </span>
+            </p>
+            <a href="book_detail.html?id=${index}" class="mt-2 bg-[#4F46E5] text-white px-3 py-1 rounded text-sm hover:bg-indigo-700">عرض سريع</a>
+            <a href="Etudiants/borrows.html" class="mt-2 bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700">استعارة</a>
+
+            <div class="flex justify-center gap-2 mt-3">
+              <button onclick="editBook(${index})" class="bg-yellow-500 text-white px-3 py-1 rounded text-sm hover:bg-yellow-600">تعديل</button>
+              <button onclick="deleteBook(${index})" class="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700">حذف</button>
+            </div>
+          `;
+          booksContainer.appendChild(card);
+        });
+      }
+
+      function deleteBook(index) {
+        if (confirm('هل أنت متأكد أنك تريد حذف هذا الكتاب؟')) {
+          books.splice(index, 1);
+          localStorage.setItem('books', JSON.stringify(books));
+          renderBooks();
+        }
+      }
+
+      function editBook(index) {
+        const newTitle = prompt('عنوان جديد:', books[index].title);
+        const newAuthor = prompt('اسم المؤلف الجديد:', books[index].author);
+        const newStatus = prompt('الحالة (متوفر/غير متوفر):', books[index].status);
+
+        if (newTitle && newAuthor && newStatus) {
+          books[index].title = newTitle;
+          books[index].author = newAuthor;
+          books[index].status = newStatus;
+          localStorage.setItem('books', JSON.stringify(books));
+          renderBooks();
+        }
+      }
+
+      renderBooks();
+    </script>
+  </body>
+</html>
